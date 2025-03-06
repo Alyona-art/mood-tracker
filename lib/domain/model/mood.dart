@@ -9,7 +9,7 @@ class Mood with _$Mood {
   const factory Mood({
     required int id,
     required String name,
-    required int color,
+    required String color,
   }) = _Mood;
 
   static Mood fromEntity(MoodDTO entity) => Mood(

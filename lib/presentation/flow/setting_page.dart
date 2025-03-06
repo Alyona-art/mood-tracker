@@ -5,6 +5,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import '../../constants.dart';
 import '../../domain/domain.dart';
+import '../../i18n/i18n.dart';
 import '../presentation.dart';
 
 class SettingPage extends StatefulWidget {
@@ -16,15 +17,17 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   late int _selectedId;
-  late int _selectedColor;
+  late String _selectedColor;
   late String _selectedName;
   late TextEditingController _controller;
+  late MoodsCubit _cubit;
 
   @override
   void initState() {
     super.initState();
     _selectedId = 1;
-    final Mood mood = context.read<MoodsCubit>().getMood(1)!;
+    _cubit = context.read<MoodsCubit>();
+    final Mood mood = _cubit.getMood(1)!;
     _selectedColor = mood.color;
     _selectedName = mood.name;
     _controller = TextEditingController(text: _selectedName);
@@ -32,13 +35,13 @@ class _SettingPageState extends State<SettingPage> {
       setState(() {
         _selectedName = _controller.text;
       });
-      context.read<MoodsCubit>().setMood(
-            Mood(
-              id: _selectedId,
-              name: _controller.text,
-              color: _selectedColor,
-            ),
-          );
+      _cubit.setMood(
+        Mood(
+          id: _selectedId,
+          name: _controller.text,
+          color: _selectedColor,
+        ),
+      );
     });
   }
 
@@ -53,7 +56,6 @@ class _SettingPageState extends State<SettingPage> {
     final ThemeData themeData = Theme.of(context);
 
     return Scaffold(
-      // resizeToAvoidBottomInset: false,
       floatingActionButton: IconButton(
         onPressed: () => Navigator.maybePop(context),
         icon: const Icon(Icons.arrow_back),
@@ -70,8 +72,8 @@ class _SettingPageState extends State<SettingPage> {
             shrinkWrap: true,
             physics: const ClampingScrollPhysics(),
             children: <Widget>[
-              const Center(
-                child: Text('everything is in your hands.'),
+              Center(
+                child: Text(t.settings.title),
               ),
               const SizedBox(height: 32),
               MoodList(
@@ -98,36 +100,40 @@ class _SettingPageState extends State<SettingPage> {
                     inputFormatters: <TextInputFormatter>[
                       LengthLimitingTextInputFormatter(20),
                     ],
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       isDense: true,
-                      enabledBorder: UnderlineInputBorder(),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Theme.of(context).dividerColor,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               HueRingPicker(
                 colorPickerHeight: 200,
                 hueRingStrokeWidth: 25,
-                pickerColor: Color(_selectedColor),
+                pickerColor: _selectedColor.toColor() ?? Colors.white,
                 onColorChanged: (Color color) {
-                  context.read<MoodsCubit>().setMood(
-                        Mood(
-                          id: _selectedId,
-                          name: _selectedName,
-                          color: color.value,
-                        ),
-                      );
+                  _cubit.setMood(
+                    Mood(
+                      id: _selectedId,
+                      name: _selectedName,
+                      color: color.toHexString(),
+                    ),
+                  );
                   setState(() {
-                    _selectedColor = color.value;
+                    _selectedColor = color.toHexString();
                   });
                 },
               ),
               const SizedBox(height: 32),
-              InkWell(
+              SettingButton(
                 onTap: () {
                   int index = 0;
-                  for (final MapEntry<int, String> entry
+                  for (final MapEntry<String, String> entry
                       in Constants.moods.entries) {
                     final String name =
                         context.read<MoodsCubit>().getMood(index)!.name;
@@ -146,21 +152,15 @@ class _SettingPageState extends State<SettingPage> {
                     index++;
                   }
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  child: const Text('restore default colors'),
-                ),
+                text: t.settings.colors,
               ),
-              const SizedBox(height: 10),
-              InkWell(
+              const SizedBox(height: 6),
+              SettingButton(
                 onTap: () {
                   int index = 0;
-                  for (final MapEntry<int, String> entry
+                  for (final MapEntry<String, String> entry
                       in Constants.moods.entries) {
-                    final int color =
+                    final String color =
                         context.read<MoodsCubit>().getMood(index)!.color;
                     context.read<MoodsCubit>().setMood(
                           Mood(
@@ -175,13 +175,7 @@ class _SettingPageState extends State<SettingPage> {
                     index++;
                   }
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  child: const Text('restore default names'),
-                ),
+                text: t.settings.names,
               ),
             ],
           ),

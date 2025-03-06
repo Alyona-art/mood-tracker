@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../constants.dart';
+import '../../i18n/i18n.dart';
 import 'setting_page.dart';
 import 'widget/calendar_view.dart';
 import 'widget/mood_tracker.dart';
@@ -19,19 +21,19 @@ class HomePage extends StatelessWidget {
         icon: const Icon(Icons.settings_outlined),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
-      body: const Padding(
-        padding: EdgeInsets.all(8),
+      body: Padding(
+        padding: const EdgeInsets.all(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Center(
-              child: Text('welcome to 2024 and all of its possibilities'),
+              child: Text(t.welcome(name: Constants.year)),
             ),
-            SizedBox(height: 16),
-            CalendarView(),
-            SizedBox(height: 32),
-            MoodTracker(),
+            const SizedBox(height: 16),
+            const CalendarView(),
+            const SizedBox(height: 32),
+            const MoodTracker(),
           ],
         ),
       ),

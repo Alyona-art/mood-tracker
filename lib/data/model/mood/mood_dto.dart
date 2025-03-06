@@ -5,11 +5,11 @@ part 'mood_dto.g.dart';
 class MoodDTO extends HiveObject {
   MoodDTO({
     this.name = '',
-    this.color = 0,
+    this.color = '',
   });
 
   @HiveField(0)
   String name;
   @HiveField(1)
-  int color;
+  String color;
 }

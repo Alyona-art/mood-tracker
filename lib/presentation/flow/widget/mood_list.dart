@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import '../../../domain/domain.dart';
 import '../../presentation.dart';
@@ -16,10 +17,7 @@ class MoodList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MoodsCubit moodsCubit = BlocProvider.of<MoodsCubit>(context);
-
     return BlocBuilder<MoodsCubit, List<Mood>>(
-      bloc: moodsCubit,
       builder: (BuildContext context, List<Mood> state) {
         return Wrap(
           spacing: 32,
@@ -32,7 +30,11 @@ class MoodList extends StatelessWidget {
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      border: selectedId == mood.id ? Border.all() : null,
+                      border: selectedId == mood.id
+                          ? Border.all(
+                              color: Theme.of(context).dividerColor,
+                            )
+                          : null,
                     ),
                     padding: const EdgeInsets.all(6),
                     child: Row(
@@ -42,9 +44,11 @@ class MoodList extends StatelessWidget {
                           width: 12,
                           height: 12,
                           decoration: BoxDecoration(
-                            border: Border.all(),
+                            border: Border.all(
+                              color: Theme.of(context).dividerColor,
+                            ),
                             shape: BoxShape.circle,
-                            color: Color(mood.color),
+                            color: mood.color.toColor(),
                           ),
                         ),
                         const SizedBox(width: 12),

@@ -1,5 +1,5 @@
 name: mood_tracker
-description: "App to track mood every day in 2024"
+description: "App to track mood every day in new year"
 
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
@@ -15,15 +15,19 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^8.1.6
   flutter_colorpicker: ^1.1.0
+  flutter_localizations:
+    sdk: flutter
   freezed: ^2.5.2
   freezed_annotation: ^2.4.4
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   hive_generator: ^2.0.1
   injectable: ^2.4.2
-  intl: ^0.18.1
+  intl: ^0.19.0
   nested: ^1.0.0
   path_provider: ^2.1.4
+  slang: ^4.4.0
+  slang_flutter: ^4.4.0
 
 dev_dependencies:
   flutter_test:
@@ -33,7 +37,4 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-  assets:
-    # Add assets from the images directory to the application.
-    - assets/images/
+  generate: true

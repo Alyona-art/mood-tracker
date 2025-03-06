@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:nested/nested.dart';
 
@@ -7,9 +8,9 @@ import '../constants.dart';
 import '../data/data.dart';
 import '../di.dart';
 import '../domain/domain.dart';
+import '../i18n/i18n.dart';
 import 'presentation.dart';
 
-/// The Widget that configures your application.
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -22,7 +23,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     final Box<DayDTO> dayBox = Hive.box<DayDTO>(Constants.dayBox);
-    final Box<MoodDTO> moodBox = Hive.box<MoodDTO>(Constants.moodBox);
 
     final int year = DateTime.now().year % 4 == 0 ? 366 : 365;
     DateTime currentDate = DateTime(DateTime.now().year);
@@ -32,16 +32,6 @@ class _MyAppState extends State<MyApp> {
         dayBox.add(Day.toEntity(Day(date: currentDate, moodId: -1)));
         currentDate = currentDate.add(const Duration(days: 1));
       }
-    }
-
-    if (moodBox.isEmpty) {
-      Constants.moods.forEach(
-        (int key, String value) => moodBox.add(
-          Mood.toEntity(
-            Mood(id: -1, name: value, color: key),
-          ),
-        ),
-      );
     }
   }
 
@@ -66,8 +56,20 @@ class _MyAppState extends State<MyApp> {
                 create: (BuildContext context) => DaysCubit(),
               ),
             ],
-            child: const MaterialApp(
-              home: HomePage(),
+            child: MaterialApp(
+              locale: TranslationProvider.of(context).flutterLocale,
+              supportedLocales: AppLocaleUtils.supportedLocales,
+              localizationsDelegates: GlobalMaterialLocalizations.delegates,
+              theme: ThemeData(
+                brightness: Brightness.light,
+                /* light theme settings */
+              ),
+              darkTheme: ThemeData(
+                brightness: Brightness.dark,
+                /* dark theme settings */
+              ),
+              themeMode: ThemeMode.system,
+              home: const HomePage(),
             ),
           );
         } else {

@@ -1,0 +1,18 @@
+{
+    "welcome": "welcome to $name and all its possibilities",
+    "joy": "Joy",
+    "love": "Love",
+    "anger": "Anger",
+    "sad": "Sad",
+    "tired": "Tired",
+    "calm": "Calm",
+    "energetic": "Energetic",
+    "passion": "Passion",
+    "stressed": "Stressed",
+    "lonely": "Lonely",
+    "settings": {
+        "title": "everything is in your hands",
+        "colors": "restore default colors",
+        "names": "restore default names"
+    }
+}

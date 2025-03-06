@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'constants.dart';
 
 import 'data/data.dart';
+import 'i18n/i18n.dart';
 import 'presentation/app.dart';
 
 void main() async {
@@ -13,5 +14,8 @@ void main() async {
   await Hive.openBox<DayDTO>(Constants.dayBox);
   await Hive.openBox<MoodDTO>(Constants.moodBox);
 
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  LocaleSettings.useDeviceLocale();
+
+  runApp(TranslationProvider(child: const MyApp()));
 }
