@@ -30,10 +30,8 @@ Future<void> _exportMarkdown(BuildContext context) async {
   if (!context.mounted) {
     return;
   }
-  final List<MoodDay> entries = await getIt<MoodRepository>().getEntriesInDateRange(
-    range.start,
-    range.end,
-  );
+  final List<MoodDay> entries = await getIt<MoodRepository>()
+      .getEntriesInDateRange(range.start, range.end);
   if (!context.mounted) {
     return;
   }
@@ -43,11 +41,14 @@ Future<void> _exportMarkdown(BuildContext context) async {
     );
     return;
   }
+  final String noteLabel =
+      locale.languageCode == 'ru' ? 'Заметка' : 'Note';
   final String markdown = buildMoodMarkdown(
     entries,
     energyLabel: s.exportMarkdownEnergy,
     feelingLabel: s.exportMarkdownFeeling,
     moodLabel: s.exportMarkdownMood,
+    noteLabel: noteLabel,
   );
   await SharePlus.instance.share(ShareParams(text: markdown));
 }
@@ -66,8 +67,6 @@ class SettingsPage extends StatelessWidget {
       ),
       body: BlocBuilder<PreferencesCubit, PreferencesState>(
         builder: (BuildContext context, PreferencesState state) {
-          final bool isRussian =
-              Localizations.localeOf(context).languageCode == 'ru';
           return ListView(
             padding: const EdgeInsets.all(16),
             children: <Widget>[
@@ -85,19 +84,16 @@ class SettingsPage extends StatelessWidget {
                   context.read<PreferencesCubit>().setShowAdvice(value);
                 },
               ),
-              if (isRussian)
-                SwitchListTile(
-                  title: Text(S.of(context).showEnglishTranslations),
-                  subtitle: Text(
-                    S.of(context).showEnglishTranslationsDescription,
-                  ),
-                  value: state.showEnglishTranslations,
-                  onChanged: (bool value) {
-                    context.read<PreferencesCubit>().setShowEnglishTranslations(
-                      value,
-                    );
-                  },
+              SwitchListTile(
+                title: const Text('Редактирование формы'),
+                subtitle: const Text(
+                  'ненавязчивая ссылка «подкрутить» для ручной настройки звезды',
                 ),
+                value: state.allowShapeEditing,
+                onChanged: (bool value) {
+                  context.read<PreferencesCubit>().setAllowShapeEditing(value);
+                },
+              ),
             ],
           );
         },

@@ -23,13 +23,17 @@ class MoodDayAdapter extends TypeAdapter<MoodDay> {
       emotion: fields[3] as String,
       energy: fields[4] as int?,
       pleasantness: fields[5] as int?,
+      shapeRounding: fields[6] as int?,
+      shapeRayDepth: fields[7] as int?,
+      shapeTwist: fields[8] as int?,
+      shapeVariance: fields[9] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MoodDay obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
@@ -41,7 +45,15 @@ class MoodDayAdapter extends TypeAdapter<MoodDay> {
       ..writeByte(4)
       ..write(obj.energy)
       ..writeByte(5)
-      ..write(obj.pleasantness);
+      ..write(obj.pleasantness)
+      ..writeByte(6)
+      ..write(obj.shapeRounding)
+      ..writeByte(7)
+      ..write(obj.shapeRayDepth)
+      ..writeByte(8)
+      ..write(obj.shapeTwist)
+      ..writeByte(9)
+      ..write(obj.shapeVariance);
   }
 
   @override
@@ -67,6 +79,10 @@ _$MoodDayImpl _$$MoodDayImplFromJson(Map<String, dynamic> json) =>
       emotion: json['emotion'] as String,
       energy: (json['energy'] as num?)?.toInt(),
       pleasantness: (json['pleasantness'] as num?)?.toInt(),
+      shapeRounding: (json['shapeRounding'] as num?)?.toInt(),
+      shapeRayDepth: (json['shapeRayDepth'] as num?)?.toInt(),
+      shapeTwist: (json['shapeTwist'] as num?)?.toInt(),
+      shapeVariance: (json['shapeVariance'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$MoodDayImplToJson(_$MoodDayImpl instance) =>
@@ -77,4 +93,8 @@ Map<String, dynamic> _$$MoodDayImplToJson(_$MoodDayImpl instance) =>
       'emotion': instance.emotion,
       'energy': instance.energy,
       'pleasantness': instance.pleasantness,
+      'shapeRounding': instance.shapeRounding,
+      'shapeRayDepth': instance.shapeRayDepth,
+      'shapeTwist': instance.shapeTwist,
+      'shapeVariance': instance.shapeVariance,
     };

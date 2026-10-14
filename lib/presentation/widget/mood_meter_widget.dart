@@ -4,57 +4,89 @@ import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../application/get_it/get_it.dart';
 import '../../data/repositories/emotion_repository.dart';
+import '../../data/services/mood_grid_color_service.dart';
 import '../../domain/models/emotion.dart';
 import '../../domain/models/mood_day.dart';
-import '../../domain/services/emotion_mapping.dart';
+import '../../domain/services/mood_advice.dart';
+import '../../domain/services/mood_gradient_color.dart';
+import '../../domain/services/mood_scale.dart';
+import '../../domain/services/mood_shape.dart';
 import '../../domain/usecases/get_entry_by_day.dart';
 import '../bloc/mood_bloc.dart';
 import '../bloc/preferences_cubit.dart';
+import '../pages/mood_details_page.dart';
 import '../shared/assets/l10n.dart';
 import '../shared/extensions/emotion_localization_extension.dart';
 import 'custom_slider.dart';
 import 'custom_text_button.dart';
-import 'emotion_selection_grid.dart';
+import 'expandable_note_card.dart';
+import 'mood_shape_sheet.dart';
+import 'mood_shape_view.dart';
 
 class MoodMeterWidget extends StatefulWidget {
   const MoodMeterWidget({
     super.key,
     required this.selectedDate,
     required this.onDateChanged,
+    this.gridColors,
   });
   final DateTime selectedDate;
   final Function(DateTime) onDateChanged;
+  final List<List<Color>>? gridColors;
 
   @override
   State<MoodMeterWidget> createState() => _MoodMeterWidgetState();
 }
 
-enum _ViewState { sliders, emotionSelection, saved }
+enum _ViewState { sliders, saved }
 
 class _MoodMeterWidgetState extends State<MoodMeterWidget> {
   late DateTime _currentDate;
   List<Emotion> _emotions = <Emotion>[];
   MoodDay? _currentEntry;
   bool _isLoading = true;
-  int _energy = 4;
-  int _pleasantness = 4;
+  double _energy = MoodScale.defaultPercent.toDouble();
+  double _pleasantness = MoodScale.defaultPercent.toDouble();
+  double? _roundingOverride;
+  double? _rayDepthOverride;
+  double? _twistOverride;
+  double? _varianceOverride;
+  bool _slidersTouched = false;
+  final Set<String> _selectedEmotionIds = <String>{};
+  String _note = '';
+  List<List<Color>>? _gridColors;
   _ViewState _viewState = _ViewState.sliders;
 
   @override
   void initState() {
     super.initState();
     _currentDate = widget.selectedDate;
+    _gridColors = widget.gridColors;
     _loadData();
   }
 
   @override
   void didUpdateWidget(MoodMeterWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.gridColors != widget.gridColors) {
+      _gridColors = widget.gridColors;
+    }
     if (oldWidget.selectedDate != widget.selectedDate) {
       _currentDate = widget.selectedDate;
       _loadData();
     }
   }
+
+  int get _daySeed =>
+      _currentDate.year * 10000 +
+      _currentDate.month * 100 +
+      _currentDate.day;
+
+  bool get _shapeLocked =>
+      _roundingOverride != null ||
+      _rayDepthOverride != null ||
+      _twistOverride != null ||
+      _varianceOverride != null;
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
@@ -63,24 +95,37 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
     final MoodDay? entry = await getIt<GetEntryByDayUseCase>().execute(
       _currentDate,
     );
+    final List<List<Color>>? gridColors =
+        widget.gridColors ??
+        await getIt<MoodGridColorService>().getGridColors();
+
     setState(() {
+      _gridColors = gridColors;
       _emotions = emotions;
       _currentEntry = entry;
-      _energy = entry?.energy ?? 4;
-      _pleasantness = entry?.pleasantness ?? 4;
-      _viewState =
-          entry != null && entry.emotion.isNotEmpty
-              ? _ViewState.saved
-              : _ViewState.sliders;
+      _energy = MoodScale.toPercent(entry?.energy).toDouble();
+      _pleasantness = MoodScale.toPercent(entry?.pleasantness).toDouble();
+      _roundingOverride =
+          entry?.shapeRounding != null ? entry!.shapeRounding! / 100.0 : null;
+      _rayDepthOverride =
+          entry?.shapeRayDepth != null ? entry!.shapeRayDepth! / 100.0 : null;
+      _twistOverride =
+          entry?.shapeTwist != null ? entry!.shapeTwist! / 100.0 : null;
+      _varianceOverride =
+          entry?.shapeVariance != null ? entry!.shapeVariance! / 100.0 : null;
+      _selectedEmotionIds
+        ..clear()
+        ..addAll(entry?.emotionIds ?? <String>[]);
+      _note = entry?.text ?? '';
+      final bool hasEntry =
+          entry != null &&
+          (entry.emotion.isNotEmpty ||
+              entry.energy != null ||
+              entry.pleasantness != null);
+      _slidersTouched = hasEntry;
+      _viewState = hasEntry ? _ViewState.saved : _ViewState.sliders;
       _isLoading = false;
     });
-  }
-
-  void _navigateDate(int days) {
-    final DateTime newDate = _currentDate.add(Duration(days: days));
-    setState(() => _currentDate = newDate);
-    widget.onDateChanged(newDate);
-    _loadData();
   }
 
   String _formatDate(BuildContext context, DateTime date) {
@@ -90,7 +135,102 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
     ).format(date);
   }
 
-  void _saveMood(Emotion emotion) {
+  Color get _moodColor {
+    if (!_slidersTouched) {
+      return Theme.of(context).colorScheme.surfaceContainerHighest;
+    }
+    return MoodGradientColor.fromGridOrDefaults(
+      energyPercent: _energy.round(),
+      pleasantnessPercent: _pleasantness.round(),
+      grid: _gridColors,
+    );
+  }
+
+  MoodShapeParams get _autoShape => MoodShapeParams.fromMood(
+    energyPercent: _energy.round(),
+    pleasantnessPercent: _pleasantness.round(),
+    seed: _daySeed,
+  );
+
+  MoodShapeParams get _currentShape => MoodShapeParams.fromMood(
+    energyPercent: _energy.round(),
+    pleasantnessPercent: _pleasantness.round(),
+    cornerRoundingOverride: _roundingOverride,
+    rayDepthOverride: _rayDepthOverride,
+    twistOverride: _twistOverride,
+    varianceOverride: _varianceOverride,
+    seed: _daySeed,
+  );
+
+  void _clearShapeLock() {
+    setState(() {
+      _roundingOverride = null;
+      _rayDepthOverride = null;
+      _twistOverride = null;
+      _varianceOverride = null;
+    });
+  }
+
+  Future<void> _openShapeSheet() async {
+    if (!_slidersTouched) {
+      setState(() => _slidersTouched = true);
+    }
+    final MoodShapeSheetResult? result = await showMoodShapeSheet(
+      context: context,
+      color: _moodColor,
+      initial: _currentShape,
+      defaults: _autoShape,
+    );
+    if (result == null || !mounted) {
+      return;
+    }
+    if (result.cleared || result.params == null) {
+      _clearShapeLock();
+      return;
+    }
+    final MoodShapeParams params = result.params!;
+    setState(() {
+      _slidersTouched = true;
+      _roundingOverride = params.cornerRounding;
+      _rayDepthOverride = params.rayDepth;
+      _twistOverride = params.twist;
+      _varianceOverride = params.variance;
+    });
+  }
+
+  Future<void> _openDetailsPage() async {
+    if (!_slidersTouched) {
+      setState(() => _slidersTouched = true);
+    }
+    final MoodDetailsResult? result = await Navigator.of(context)
+        .push<MoodDetailsResult>(
+          MaterialPageRoute<MoodDetailsResult>(
+            builder:
+                (_) => MoodDetailsPage(
+                  date: _currentDate,
+                  energy: _energy.round(),
+                  pleasantness: _pleasantness.round(),
+                  color: _moodColor,
+                  shape: _currentShape,
+                  emotions: _emotions,
+                  initialEmotionIds: _selectedEmotionIds,
+                  initialNote: _note,
+                ),
+          ),
+        );
+    if (result == null || !mounted) {
+      return;
+    }
+    setState(() {
+      _selectedEmotionIds
+        ..clear()
+        ..addAll(result.emotionIds);
+      _note = result.note;
+    });
+    _saveMood();
+  }
+
+  void _saveMood() {
     final DateTime date = DateTime(
       _currentDate.year,
       _currentDate.month,
@@ -101,16 +241,28 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
       AddMoodEntry(
         date: date,
         audioPath: _currentEntry?.audioPath ?? '',
-        text: _currentEntry?.text ?? '',
-        emotion: emotion.id,
-        energy: _energy,
-        pleasantness: _pleasantness,
+        text: _note,
+        emotion: MoodDay.joinEmotionIds(_selectedEmotionIds),
+        energy: _energy.round(),
+        pleasantness: _pleasantness.round(),
+        shapeRounding:
+            _roundingOverride != null
+                ? (_roundingOverride! * 100).round()
+                : null,
+        shapeRayDepth:
+            _rayDepthOverride != null
+                ? (_rayDepthOverride! * 100).round()
+                : null,
+        shapeTwist:
+            _twistOverride != null ? (_twistOverride! * 100).round() : null,
+        shapeVariance:
+            _varianceOverride != null
+                ? (_varianceOverride! * 100).round()
+                : null,
       ),
     );
 
-    setState(() {
-      _viewState = _ViewState.saved;
-    });
+    setState(() => _viewState = _ViewState.saved);
   }
 
   void _clearMood() {
@@ -119,48 +271,40 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
       _currentDate.month,
       _currentDate.day,
     );
-
     context.read<MoodBloc>().add(DeleteMoodEntry(date));
-
     setState(() {
       _viewState = _ViewState.sliders;
-      _energy = 4;
-      _pleasantness = 4;
+      _energy = MoodScale.defaultPercent.toDouble();
+      _pleasantness = MoodScale.defaultPercent.toDouble();
+      _roundingOverride = null;
+      _rayDepthOverride = null;
+      _twistOverride = null;
+      _varianceOverride = null;
+      _slidersTouched = false;
+      _selectedEmotionIds.clear();
+      _note = '';
     });
   }
 
-  void _onSliderChanged() {
+  void _onEnergyChanged(double value) {
     setState(() {
-      _viewState = _ViewState.emotionSelection;
+      _energy = value;
+      _slidersTouched = true;
     });
   }
 
-  List<Emotion> _getSurroundingEmotions() {
-    final List<String> availableEmotionIds =
-        _emotions.map((Emotion e) => e.id).toList();
-    final List<String> emotionIds = EmotionMapping.getSurroundingEmotions(
-      energy: _energy,
-      pleasantness: _pleasantness,
-      availableEmotionIds: availableEmotionIds,
-    );
-
-    final Map<String, Emotion> emotionMap = <String, Emotion>{
-      for (final Emotion e in _emotions) e.id: e,
-    };
-
-    return emotionIds
-        .map((String id) => emotionMap[id])
-        .whereType<Emotion>()
-        .toList();
+  void _onPleasantnessChanged(double value) {
+    setState(() {
+      _pleasantness = value;
+      _slidersTouched = true;
+    });
   }
 
   Widget _buildSlider({
     required String label,
-    required int value,
-    required ValueChanged<int> onChanged,
+    required double value,
+    required ValueChanged<double> onChanged,
     required Color color,
-    required IconData leadingIcon,
-    required IconData trailingIcon,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,42 +312,28 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
         Text(
           label,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
-        const SizedBox(height: 8),
-        Row(
-          children: <Widget>[
-            Icon(leadingIcon),
-            Expanded(
-              child: CustomSlider(
-                value: value,
-                onChanged: (int newValue) {
-                  setState(() {
-                    onChanged(newValue);
-                  });
-                },
-                color: color,
-              ),
-            ),
-            Icon(trailingIcon),
-          ],
-        ),
+        CustomSlider(value: value, onChanged: onChanged, color: color),
       ],
     );
   }
 
-  Widget _buildContent() {
-    switch (_viewState) {
-      case _ViewState.sliders:
-        return _buildSlidersView();
-      case _ViewState.emotionSelection:
-        return _buildEmotionSelectionView();
-      case _ViewState.saved:
-        return _buildSavedView();
-    }
+  Widget _shapeLockChip() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 4),
+      child: InputChip(
+        label: const Text('форма зафиксирована'),
+        deleteIcon: const Icon(Icons.close, size: 16),
+        onDeleted: _clearShapeLock,
+        onPressed: _clearShapeLock,
+        visualDensity: VisualDensity.compact,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    );
   }
 
   Widget _buildSlidersView() {
@@ -212,174 +342,167 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          AnimatedMoodShapeView(
+            color: _moodColor,
+            params: _currentShape,
+            starAmount: _slidersTouched ? 1 : 0,
+            size: 152,
+          ),
+          const SizedBox(height: 12),
           _buildSlider(
-            label: S.of(context).howEnergy,
+            label: 'Уровень энергии сегодня',
             value: _energy,
-            onChanged: (int value) {
-              setState(() => _energy = value);
-            },
+            onChanged: _onEnergyChanged,
             color: Colors.orange.shade300,
-            leadingIcon: Icons.trending_down_outlined,
-            trailingIcon: Icons.trending_up_outlined,
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 8),
           _buildSlider(
-            label: S.of(context).howPleasant,
+            label: 'Насколько приятным был день',
             value: _pleasantness,
-            onChanged: (int value) {
-              setState(() => _pleasantness = value);
-            },
+            onChanged: _onPleasantnessChanged,
             color: Colors.purple.shade300,
-
-            leadingIcon: Icons.sentiment_dissatisfied_outlined,
-            trailingIcon: Icons.sentiment_satisfied_outlined,
           ),
-          const SizedBox(height: 32),
+          if (_shapeLocked) _shapeLockChip(),
+          BlocBuilder<PreferencesCubit, PreferencesState>(
+            builder: (BuildContext context, PreferencesState state) {
+              if (!state.allowShapeEditing || !_slidersTouched) {
+                return const SizedBox(height: 8);
+              }
+              return Padding(
+                padding: const EdgeInsets.only(top: 4, bottom: 4),
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      'форма не отражает суть? ',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: _openShapeSheet,
+                      child: Text(
+                        'подкрутить',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 4),
           CustomTextButton(
             text: S.of(context).continueButton,
-            onPressed: _onSliderChanged,
+            onPressed: _openDetailsPage,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEmotionSelectionView() {
-    final List<Emotion> surroundingEmotions = _getSurroundingEmotions();
+  Widget _buildSavedView() {
+    final List<String> labels = <String>[];
+    for (final String id in _selectedEmotionIds) {
+      Emotion? match;
+      for (final Emotion e in _emotions) {
+        if (e.id == id) {
+          match = e;
+          break;
+        }
+      }
+      labels.add(
+        match?.getDisplayName(context, showEnglishTranslations: false) ?? id,
+      );
+    }
+
+    final MoodAdvice advice = MoodAdviceService.forMood(
+      energyPercent: _energy.round(),
+      pleasantnessPercent: _pleasantness.round(),
+      date: _currentDate,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          MoodShapeView(color: _moodColor, params: _currentShape, size: 140),
+          const SizedBox(height: 12),
           Text(
-            S.of(context).chooseMood,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface,
+            'Энергия ${_energy.round()}% · приятность ${_pleasantness.round()}%',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          if (labels.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 8),
+            Text(
+              labels.join(' · '),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-          ),
-          const SizedBox(height: 8),
-          EmotionSelectionGrid(
-            emotions: surroundingEmotions,
-            onEmotionSelected: _saveMood,
-          ),
-          const SizedBox(height: 24),
-          CustomTextButton(
-            onPressed: () {
-              setState(() {
-                _viewState = _ViewState.sliders;
-              });
+          ],
+          if (_note.trim().isNotEmpty) ...<Widget>[
+            const SizedBox(height: 12),
+            ExpandableNoteCard(text: _note.trim()),
+          ],
+          BlocBuilder<PreferencesCubit, PreferencesState>(
+            builder: (BuildContext context, PreferencesState state) {
+              if (!state.showAdvice) {
+                return const SizedBox.shrink();
+              }
+              return Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Совет: ${advice.suggestion}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              );
             },
-            text: S.of(context).back,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: OutlinedButton(
+                  onPressed:
+                      () => setState(() => _viewState = _ViewState.sliders),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(44),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text('изменить'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: _clearMood,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    minimumSize: const Size.fromHeight(44),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: Text(S.of(context).clear),
+                ),
+              ),
+            ],
           ),
         ],
       ),
-    );
-  }
-
-  String _getAdviceDescription() {
-    final bool isHighEnergy = _energy >= 4;
-    final bool isHighPleasantness = _pleasantness >= 4;
-
-    if (isHighEnergy && !isHighPleasantness) {
-      return S.of(context).redDescription;
-    } else if (isHighEnergy && isHighPleasantness) {
-      return S.of(context).yellowDescription;
-    } else if (!isHighEnergy && !isHighPleasantness) {
-      return S.of(context).blueDescription;
-    } else {
-      return S.of(context).greenDescription;
-    }
-  }
-
-  String _getAdviceText() {
-    final bool isHighEnergy = _energy >= 4;
-    final bool isHighPleasantness = _pleasantness >= 4;
-
-    if (isHighEnergy && !isHighPleasantness) {
-      return S.of(context).redAdvice;
-    } else if (isHighEnergy && isHighPleasantness) {
-      return S.of(context).yellowAdvice;
-    } else if (!isHighEnergy && !isHighPleasantness) {
-      return S.of(context).blueAdvice;
-    } else {
-      return S.of(context).greenAdvice;
-    }
-  }
-
-  Widget _buildSavedView() {
-    final Emotion? selectedEmotion =
-        _currentEntry != null
-            ? _emotions.firstWhere(
-              (Emotion e) => e.id == _currentEntry!.emotion,
-              orElse: () => _emotions.first,
-            )
-            : null;
-
-    if (selectedEmotion == null) {
-      return const SizedBox.shrink();
-    }
-
-    final Color color = selectedEmotion.color;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Container(
-          width: 120,
-          height: 120,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(height: 16),
-        BlocBuilder<PreferencesCubit, PreferencesState>(
-          builder: (BuildContext context, PreferencesState state) {
-            final String displayName = selectedEmotion.getDisplayName(
-              context,
-              showEnglishTranslations: state.showEnglishTranslations,
-            );
-            return Text(
-              displayName,
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            );
-          },
-        ),
-        const SizedBox(height: 16),
-        CustomTextButton(onPressed: _clearMood, text: S.of(context).clear),
-        BlocBuilder<PreferencesCubit, PreferencesState>(
-          builder: (BuildContext context, PreferencesState state) {
-            if (!state.showAdvice) {
-              return const SizedBox.shrink();
-            }
-            return Column(
-              children: <Widget>[
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        _getAdviceDescription(),
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        textAlign: TextAlign.left,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${S.of(context).YouCanTry} ${_getAdviceText()}',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        textAlign: TextAlign.left,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ],
     );
   }
 
@@ -393,31 +516,16 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 48),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(
-                  icon: const Icon(Icons.chevron_left_rounded),
-                  onPressed: () => _navigateDate(-1),
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                Text(
-                  _formatDate(context, _currentDate),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right_rounded),
-                  onPressed: () => _navigateDate(1),
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ],
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+            child: Text(
+              _formatDate(context, _currentDate),
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 4),
           Center(
             child:
                 _isLoading
@@ -425,7 +533,9 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
                       padding: const EdgeInsets.all(32),
                       color: Theme.of(context).colorScheme.primary,
                     )
-                    : _buildContent(),
+                    : _viewState == _ViewState.sliders
+                    ? _buildSlidersView()
+                    : _buildSavedView(),
           ),
         ],
       ),

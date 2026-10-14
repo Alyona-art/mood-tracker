@@ -17,6 +17,10 @@ class AddMoodEntry extends MoodEvent {
     required this.emotion,
     this.energy,
     this.pleasantness,
+    this.shapeRounding,
+    this.shapeRayDepth,
+    this.shapeTwist,
+    this.shapeVariance,
   });
   final DateTime date;
   final String audioPath;
@@ -24,6 +28,10 @@ class AddMoodEntry extends MoodEvent {
   final String emotion;
   final int? energy;
   final int? pleasantness;
+  final int? shapeRounding;
+  final int? shapeRayDepth;
+  final int? shapeTwist;
+  final int? shapeVariance;
 
   @override
   List<Object?> get props => <Object?>[
@@ -33,6 +41,10 @@ class AddMoodEntry extends MoodEvent {
     emotion,
     energy,
     pleasantness,
+    shapeRounding,
+    shapeRayDepth,
+    shapeTwist,
+    shapeVariance,
   ];
 }
 

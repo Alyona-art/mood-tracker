@@ -26,12 +26,28 @@ mixin _$MoodDay {
   String get audioPath => throw _privateConstructorUsedError;
   @HiveField(2)
   String get text => throw _privateConstructorUsedError;
+
+  /// Comma-separated emotion ids (chips). Primary / first used for legacy UIs.
   @HiveField(3)
   String get emotion => throw _privateConstructorUsedError;
+
+  /// Energy 0–100 (legacy entries may still be 1–6 until rewritten).
   @HiveField(4)
   int? get energy => throw _privateConstructorUsedError;
+
+  /// Pleasantness 0–100 (legacy entries may still be 1–6 until rewritten).
   @HiveField(5)
   int? get pleasantness => throw _privateConstructorUsedError;
+
+  /// Optional manual shape overrides 0–100; null = derived from mood.
+  @HiveField(6)
+  int? get shapeRounding => throw _privateConstructorUsedError;
+  @HiveField(7)
+  int? get shapeRayDepth => throw _privateConstructorUsedError;
+  @HiveField(8)
+  int? get shapeTwist => throw _privateConstructorUsedError;
+  @HiveField(9)
+  int? get shapeVariance => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -49,7 +65,11 @@ abstract class $MoodDayCopyWith<$Res> {
       @HiveField(2) String text,
       @HiveField(3) String emotion,
       @HiveField(4) int? energy,
-      @HiveField(5) int? pleasantness});
+      @HiveField(5) int? pleasantness,
+      @HiveField(6) int? shapeRounding,
+      @HiveField(7) int? shapeRayDepth,
+      @HiveField(8) int? shapeTwist,
+      @HiveField(9) int? shapeVariance});
 }
 
 /// @nodoc
@@ -71,6 +91,10 @@ class _$MoodDayCopyWithImpl<$Res, $Val extends MoodDay>
     Object? emotion = null,
     Object? energy = freezed,
     Object? pleasantness = freezed,
+    Object? shapeRounding = freezed,
+    Object? shapeRayDepth = freezed,
+    Object? shapeTwist = freezed,
+    Object? shapeVariance = freezed,
   }) {
     return _then(_value.copyWith(
       date: null == date
@@ -97,6 +121,22 @@ class _$MoodDayCopyWithImpl<$Res, $Val extends MoodDay>
           ? _value.pleasantness
           : pleasantness // ignore: cast_nullable_to_non_nullable
               as int?,
+      shapeRounding: freezed == shapeRounding
+          ? _value.shapeRounding
+          : shapeRounding // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeRayDepth: freezed == shapeRayDepth
+          ? _value.shapeRayDepth
+          : shapeRayDepth // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeTwist: freezed == shapeTwist
+          ? _value.shapeTwist
+          : shapeTwist // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeVariance: freezed == shapeVariance
+          ? _value.shapeVariance
+          : shapeVariance // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 }
@@ -114,7 +154,11 @@ abstract class _$$MoodDayImplCopyWith<$Res> implements $MoodDayCopyWith<$Res> {
       @HiveField(2) String text,
       @HiveField(3) String emotion,
       @HiveField(4) int? energy,
-      @HiveField(5) int? pleasantness});
+      @HiveField(5) int? pleasantness,
+      @HiveField(6) int? shapeRounding,
+      @HiveField(7) int? shapeRayDepth,
+      @HiveField(8) int? shapeTwist,
+      @HiveField(9) int? shapeVariance});
 }
 
 /// @nodoc
@@ -134,6 +178,10 @@ class __$$MoodDayImplCopyWithImpl<$Res>
     Object? emotion = null,
     Object? energy = freezed,
     Object? pleasantness = freezed,
+    Object? shapeRounding = freezed,
+    Object? shapeRayDepth = freezed,
+    Object? shapeTwist = freezed,
+    Object? shapeVariance = freezed,
   }) {
     return _then(_$MoodDayImpl(
       date: null == date
@@ -160,20 +208,41 @@ class __$$MoodDayImplCopyWithImpl<$Res>
           ? _value.pleasantness
           : pleasantness // ignore: cast_nullable_to_non_nullable
               as int?,
+      shapeRounding: freezed == shapeRounding
+          ? _value.shapeRounding
+          : shapeRounding // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeRayDepth: freezed == shapeRayDepth
+          ? _value.shapeRayDepth
+          : shapeRayDepth // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeTwist: freezed == shapeTwist
+          ? _value.shapeTwist
+          : shapeTwist // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeVariance: freezed == shapeVariance
+          ? _value.shapeVariance
+          : shapeVariance // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$MoodDayImpl implements _MoodDay {
+class _$MoodDayImpl extends _MoodDay {
   const _$MoodDayImpl(
       {@HiveField(0) required this.date,
       @HiveField(1) required this.audioPath,
       @HiveField(2) required this.text,
       @HiveField(3) required this.emotion,
       @HiveField(4) this.energy,
-      @HiveField(5) this.pleasantness});
+      @HiveField(5) this.pleasantness,
+      @HiveField(6) this.shapeRounding,
+      @HiveField(7) this.shapeRayDepth,
+      @HiveField(8) this.shapeTwist,
+      @HiveField(9) this.shapeVariance})
+      : super._();
 
   factory _$MoodDayImpl.fromJson(Map<String, dynamic> json) =>
       _$$MoodDayImplFromJson(json);
@@ -187,19 +256,39 @@ class _$MoodDayImpl implements _MoodDay {
   @override
   @HiveField(2)
   final String text;
+
+  /// Comma-separated emotion ids (chips). Primary / first used for legacy UIs.
   @override
   @HiveField(3)
   final String emotion;
+
+  /// Energy 0–100 (legacy entries may still be 1–6 until rewritten).
   @override
   @HiveField(4)
   final int? energy;
+
+  /// Pleasantness 0–100 (legacy entries may still be 1–6 until rewritten).
   @override
   @HiveField(5)
   final int? pleasantness;
 
+  /// Optional manual shape overrides 0–100; null = derived from mood.
+  @override
+  @HiveField(6)
+  final int? shapeRounding;
+  @override
+  @HiveField(7)
+  final int? shapeRayDepth;
+  @override
+  @HiveField(8)
+  final int? shapeTwist;
+  @override
+  @HiveField(9)
+  final int? shapeVariance;
+
   @override
   String toString() {
-    return 'MoodDay(date: $date, audioPath: $audioPath, text: $text, emotion: $emotion, energy: $energy, pleasantness: $pleasantness)';
+    return 'MoodDay(date: $date, audioPath: $audioPath, text: $text, emotion: $emotion, energy: $energy, pleasantness: $pleasantness, shapeRounding: $shapeRounding, shapeRayDepth: $shapeRayDepth, shapeTwist: $shapeTwist, shapeVariance: $shapeVariance)';
   }
 
   @override
@@ -214,13 +303,31 @@ class _$MoodDayImpl implements _MoodDay {
             (identical(other.emotion, emotion) || other.emotion == emotion) &&
             (identical(other.energy, energy) || other.energy == energy) &&
             (identical(other.pleasantness, pleasantness) ||
-                other.pleasantness == pleasantness));
+                other.pleasantness == pleasantness) &&
+            (identical(other.shapeRounding, shapeRounding) ||
+                other.shapeRounding == shapeRounding) &&
+            (identical(other.shapeRayDepth, shapeRayDepth) ||
+                other.shapeRayDepth == shapeRayDepth) &&
+            (identical(other.shapeTwist, shapeTwist) ||
+                other.shapeTwist == shapeTwist) &&
+            (identical(other.shapeVariance, shapeVariance) ||
+                other.shapeVariance == shapeVariance));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
-      runtimeType, date, audioPath, text, emotion, energy, pleasantness);
+      runtimeType,
+      date,
+      audioPath,
+      text,
+      emotion,
+      energy,
+      pleasantness,
+      shapeRounding,
+      shapeRayDepth,
+      shapeTwist,
+      shapeVariance);
 
   @JsonKey(ignore: true)
   @override
@@ -236,14 +343,19 @@ class _$MoodDayImpl implements _MoodDay {
   }
 }
 
-abstract class _MoodDay implements MoodDay {
+abstract class _MoodDay extends MoodDay {
   const factory _MoodDay(
       {@HiveField(0) required final DateTime date,
       @HiveField(1) required final String audioPath,
       @HiveField(2) required final String text,
       @HiveField(3) required final String emotion,
       @HiveField(4) final int? energy,
-      @HiveField(5) final int? pleasantness}) = _$MoodDayImpl;
+      @HiveField(5) final int? pleasantness,
+      @HiveField(6) final int? shapeRounding,
+      @HiveField(7) final int? shapeRayDepth,
+      @HiveField(8) final int? shapeTwist,
+      @HiveField(9) final int? shapeVariance}) = _$MoodDayImpl;
+  const _MoodDay._() : super._();
 
   factory _MoodDay.fromJson(Map<String, dynamic> json) = _$MoodDayImpl.fromJson;
 
@@ -257,14 +369,34 @@ abstract class _MoodDay implements MoodDay {
   @HiveField(2)
   String get text;
   @override
+
+  /// Comma-separated emotion ids (chips). Primary / first used for legacy UIs.
   @HiveField(3)
   String get emotion;
   @override
+
+  /// Energy 0–100 (legacy entries may still be 1–6 until rewritten).
   @HiveField(4)
   int? get energy;
   @override
+
+  /// Pleasantness 0–100 (legacy entries may still be 1–6 until rewritten).
   @HiveField(5)
   int? get pleasantness;
+  @override
+
+  /// Optional manual shape overrides 0–100; null = derived from mood.
+  @HiveField(6)
+  int? get shapeRounding;
+  @override
+  @HiveField(7)
+  int? get shapeRayDepth;
+  @override
+  @HiveField(8)
+  int? get shapeTwist;
+  @override
+  @HiveField(9)
+  int? get shapeVariance;
   @override
   @JsonKey(ignore: true)
   _$$MoodDayImplCopyWith<_$MoodDayImpl> get copyWith =>

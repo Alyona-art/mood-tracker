@@ -18,6 +18,12 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$Day {
   DateTime get date => throw _privateConstructorUsedError;
   String? get moodId => throw _privateConstructorUsedError;
+  int? get energy => throw _privateConstructorUsedError;
+  int? get pleasantness => throw _privateConstructorUsedError;
+  int? get shapeRounding => throw _privateConstructorUsedError;
+  int? get shapeRayDepth => throw _privateConstructorUsedError;
+  int? get shapeTwist => throw _privateConstructorUsedError;
+  int? get shapeVariance => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $DayCopyWith<Day> get copyWith => throw _privateConstructorUsedError;
@@ -28,7 +34,15 @@ abstract class $DayCopyWith<$Res> {
   factory $DayCopyWith(Day value, $Res Function(Day) then) =
       _$DayCopyWithImpl<$Res, Day>;
   @useResult
-  $Res call({DateTime date, String? moodId});
+  $Res call(
+      {DateTime date,
+      String? moodId,
+      int? energy,
+      int? pleasantness,
+      int? shapeRounding,
+      int? shapeRayDepth,
+      int? shapeTwist,
+      int? shapeVariance});
 }
 
 /// @nodoc
@@ -45,6 +59,12 @@ class _$DayCopyWithImpl<$Res, $Val extends Day> implements $DayCopyWith<$Res> {
   $Res call({
     Object? date = null,
     Object? moodId = freezed,
+    Object? energy = freezed,
+    Object? pleasantness = freezed,
+    Object? shapeRounding = freezed,
+    Object? shapeRayDepth = freezed,
+    Object? shapeTwist = freezed,
+    Object? shapeVariance = freezed,
   }) {
     return _then(_value.copyWith(
       date: null == date
@@ -55,6 +75,30 @@ class _$DayCopyWithImpl<$Res, $Val extends Day> implements $DayCopyWith<$Res> {
           ? _value.moodId
           : moodId // ignore: cast_nullable_to_non_nullable
               as String?,
+      energy: freezed == energy
+          ? _value.energy
+          : energy // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pleasantness: freezed == pleasantness
+          ? _value.pleasantness
+          : pleasantness // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeRounding: freezed == shapeRounding
+          ? _value.shapeRounding
+          : shapeRounding // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeRayDepth: freezed == shapeRayDepth
+          ? _value.shapeRayDepth
+          : shapeRayDepth // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeTwist: freezed == shapeTwist
+          ? _value.shapeTwist
+          : shapeTwist // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeVariance: freezed == shapeVariance
+          ? _value.shapeVariance
+          : shapeVariance // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 }
@@ -65,7 +109,15 @@ abstract class _$$DayImplCopyWith<$Res> implements $DayCopyWith<$Res> {
       __$$DayImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({DateTime date, String? moodId});
+  $Res call(
+      {DateTime date,
+      String? moodId,
+      int? energy,
+      int? pleasantness,
+      int? shapeRounding,
+      int? shapeRayDepth,
+      int? shapeTwist,
+      int? shapeVariance});
 }
 
 /// @nodoc
@@ -79,6 +131,12 @@ class __$$DayImplCopyWithImpl<$Res> extends _$DayCopyWithImpl<$Res, _$DayImpl>
   $Res call({
     Object? date = null,
     Object? moodId = freezed,
+    Object? energy = freezed,
+    Object? pleasantness = freezed,
+    Object? shapeRounding = freezed,
+    Object? shapeRayDepth = freezed,
+    Object? shapeTwist = freezed,
+    Object? shapeVariance = freezed,
   }) {
     return _then(_$DayImpl(
       date: null == date
@@ -89,6 +147,30 @@ class __$$DayImplCopyWithImpl<$Res> extends _$DayCopyWithImpl<$Res, _$DayImpl>
           ? _value.moodId
           : moodId // ignore: cast_nullable_to_non_nullable
               as String?,
+      energy: freezed == energy
+          ? _value.energy
+          : energy // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pleasantness: freezed == pleasantness
+          ? _value.pleasantness
+          : pleasantness // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeRounding: freezed == shapeRounding
+          ? _value.shapeRounding
+          : shapeRounding // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeRayDepth: freezed == shapeRayDepth
+          ? _value.shapeRayDepth
+          : shapeRayDepth // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeTwist: freezed == shapeTwist
+          ? _value.shapeTwist
+          : shapeTwist // ignore: cast_nullable_to_non_nullable
+              as int?,
+      shapeVariance: freezed == shapeVariance
+          ? _value.shapeVariance
+          : shapeVariance // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -96,16 +178,36 @@ class __$$DayImplCopyWithImpl<$Res> extends _$DayCopyWithImpl<$Res, _$DayImpl>
 /// @nodoc
 
 class _$DayImpl implements _Day {
-  const _$DayImpl({required this.date, required this.moodId});
+  const _$DayImpl(
+      {required this.date,
+      required this.moodId,
+      this.energy,
+      this.pleasantness,
+      this.shapeRounding,
+      this.shapeRayDepth,
+      this.shapeTwist,
+      this.shapeVariance});
 
   @override
   final DateTime date;
   @override
   final String? moodId;
+  @override
+  final int? energy;
+  @override
+  final int? pleasantness;
+  @override
+  final int? shapeRounding;
+  @override
+  final int? shapeRayDepth;
+  @override
+  final int? shapeTwist;
+  @override
+  final int? shapeVariance;
 
   @override
   String toString() {
-    return 'Day(date: $date, moodId: $moodId)';
+    return 'Day(date: $date, moodId: $moodId, energy: $energy, pleasantness: $pleasantness, shapeRounding: $shapeRounding, shapeRayDepth: $shapeRayDepth, shapeTwist: $shapeTwist, shapeVariance: $shapeVariance)';
   }
 
   @override
@@ -114,11 +216,23 @@ class _$DayImpl implements _Day {
         (other.runtimeType == runtimeType &&
             other is _$DayImpl &&
             (identical(other.date, date) || other.date == date) &&
-            (identical(other.moodId, moodId) || other.moodId == moodId));
+            (identical(other.moodId, moodId) || other.moodId == moodId) &&
+            (identical(other.energy, energy) || other.energy == energy) &&
+            (identical(other.pleasantness, pleasantness) ||
+                other.pleasantness == pleasantness) &&
+            (identical(other.shapeRounding, shapeRounding) ||
+                other.shapeRounding == shapeRounding) &&
+            (identical(other.shapeRayDepth, shapeRayDepth) ||
+                other.shapeRayDepth == shapeRayDepth) &&
+            (identical(other.shapeTwist, shapeTwist) ||
+                other.shapeTwist == shapeTwist) &&
+            (identical(other.shapeVariance, shapeVariance) ||
+                other.shapeVariance == shapeVariance));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, date, moodId);
+  int get hashCode => Object.hash(runtimeType, date, moodId, energy,
+      pleasantness, shapeRounding, shapeRayDepth, shapeTwist, shapeVariance);
 
   @JsonKey(ignore: true)
   @override
@@ -130,12 +244,30 @@ class _$DayImpl implements _Day {
 abstract class _Day implements Day {
   const factory _Day(
       {required final DateTime date,
-      required final String? moodId}) = _$DayImpl;
+      required final String? moodId,
+      final int? energy,
+      final int? pleasantness,
+      final int? shapeRounding,
+      final int? shapeRayDepth,
+      final int? shapeTwist,
+      final int? shapeVariance}) = _$DayImpl;
 
   @override
   DateTime get date;
   @override
   String? get moodId;
+  @override
+  int? get energy;
+  @override
+  int? get pleasantness;
+  @override
+  int? get shapeRounding;
+  @override
+  int? get shapeRayDepth;
+  @override
+  int? get shapeTwist;
+  @override
+  int? get shapeVariance;
   @override
   @JsonKey(ignore: true)
   _$$DayImplCopyWith<_$DayImpl> get copyWith =>

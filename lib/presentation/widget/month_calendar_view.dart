@@ -13,17 +13,38 @@ class MonthCalendarView extends StatelessWidget {
     required this.focusedDate,
     required this.onDateChanged,
     required this.onFocusedDateChanged,
+    this.horizontalPadding = 16,
+    this.gridColors,
   });
 
   final DateTime selectedDate;
   final DateTime focusedDate;
   final Function(DateTime) onDateChanged;
   final Function(DateTime) onFocusedDateChanged;
+  final double horizontalPadding;
+  final List<List<Color>>? gridColors;
+
+  /// Header + weekday row + up to 6 week rows.
+  static double heightForWidth(double width, {double horizontalPadding = 16}) {
+    final double cell = cellSizeForWidth(width, horizontalPadding: horizontalPadding);
+    const double header = 40;
+    const double daysOfWeek = 18;
+    return header + daysOfWeek + cell * 6;
+  }
+
+  static double cellSizeForWidth(
+    double width, {
+    double horizontalPadding = 16,
+  }) {
+    final double available = (width - horizontalPadding * 2).clamp(200, 600);
+    return available / 7;
+  }
 
   FutureBuilder<MoodDay?> _dayBuilder(
     BuildContext context,
     DateTime day,
     DateTime focusedDay,
+    double cellSize,
   ) {
     return FutureBuilder<MoodDay?>(
       future: getIt.get<GetEntryByDayUseCase>().execute(day),
@@ -34,6 +55,8 @@ class MonthCalendarView extends StatelessWidget {
           day: day,
           entry: entry,
           isFocused: isSelected,
+          cellSize: cellSize,
+          gridColors: gridColors,
           onDateChanged: onDateChanged,
         );
       },
@@ -44,19 +67,21 @@ class MonthCalendarView extends StatelessWidget {
     BuildContext context,
     DateTime day,
     DateTime focusedDay,
+    double cellSize,
   ) {
     return FutureBuilder<MoodDay?>(
       future: getIt.get<GetEntryByDayUseCase>().execute(day),
       builder: (BuildContext context, AsyncSnapshot<MoodDay?> snapshot) {
         final MoodDay? entry = snapshot.data;
-        final bool isFocused = day == focusedDay;
         return Opacity(
           opacity: 0.2,
           child: CalendarDayView(
             day: day,
             entry: entry,
-            isFocused: isFocused,
+            isFocused: false,
             isOutside: true,
+            cellSize: cellSize,
+            gridColors: gridColors,
             onDateChanged: onDateChanged,
           ),
         );
@@ -66,38 +91,35 @@ class MonthCalendarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double width = MediaQuery.sizeOf(context).width;
+    final double cellSize = cellSizeForWidth(
+      width,
+      horizontalPadding: horizontalPadding,
+    );
+
     return TableCalendar<dynamic>(
       firstDay: DateTime.utc(2025),
       lastDay: DateTime.utc(2035, 12, 31),
       startingDayOfWeek: StartingDayOfWeek.monday,
       focusedDay: focusedDate,
-      selectedDayPredicate: (DateTime day) {
-        return isSameDay(selectedDate, day);
-      },
+      selectedDayPredicate: (DateTime day) => isSameDay(selectedDate, day),
       locale: Localizations.localeOf(context).languageCode,
       onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
         onDateChanged(selectedDay);
         onFocusedDateChanged(focusedDay);
       },
-      onPageChanged: (DateTime focusedDay) {
-        onFocusedDateChanged(focusedDay);
-      },
-      rowHeight: 40,
-      calendarStyle: CalendarStyle(
-        selectedDecoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          shape: BoxShape.circle,
-        ),
-        todayDecoration: BoxDecoration(
-          color: Theme.of(
-            context,
-          ).colorScheme.primaryContainer.withValues(alpha: 0.3),
-          shape: BoxShape.circle,
-        ),
+      onPageChanged: onFocusedDateChanged,
+      rowHeight: cellSize,
+      daysOfWeekHeight: 18,
+      calendarStyle: const CalendarStyle(
+        outsideDaysVisible: true,
+        cellMargin: EdgeInsets.zero,
+        cellPadding: EdgeInsets.zero,
       ),
       headerStyle: HeaderStyle(
         titleCentered: true,
         formatButtonVisible: false,
+        headerPadding: const EdgeInsets.only(bottom: 2),
         titleTextStyle: Theme.of(context).textTheme.bodyMedium!,
         leftChevronIcon: Icon(
           Icons.chevron_left,
@@ -113,10 +135,18 @@ class MonthCalendarView extends StatelessWidget {
         rightChevronMargin: EdgeInsets.zero,
       ),
       calendarBuilders: CalendarBuilders<Widget>(
-        defaultBuilder: _dayBuilder,
-        todayBuilder: _dayBuilder,
-        selectedBuilder: _dayBuilder,
-        outsideBuilder: _outsideDayBuilder,
+        defaultBuilder:
+            (BuildContext c, DateTime d, DateTime f) =>
+                _dayBuilder(c, d, f, cellSize),
+        todayBuilder:
+            (BuildContext c, DateTime d, DateTime f) =>
+                _dayBuilder(c, d, f, cellSize),
+        selectedBuilder:
+            (BuildContext c, DateTime d, DateTime f) =>
+                _dayBuilder(c, d, f, cellSize),
+        outsideBuilder:
+            (BuildContext c, DateTime d, DateTime f) =>
+                _outsideDayBuilder(c, d, f, cellSize),
       ),
     );
   }

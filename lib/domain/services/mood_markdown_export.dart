@@ -1,40 +1,32 @@
 import 'package:intl/intl.dart';
 
 import '../models/mood_day.dart';
-import 'emotion_mapping.dart';
-
-int _energyForExport(MoodDay e) {
-  if (e.energy != null) {
-    return e.energy!;
-  }
-  final Map<String, int>? coords = EmotionMapping.getCoordinates(e.emotion);
-  return coords?['energy'] ?? 4;
-}
-
-int _feelingForExport(MoodDay e) {
-  if (e.pleasantness != null) {
-    return e.pleasantness!;
-  }
-  final Map<String, int>? coords = EmotionMapping.getCoordinates(e.emotion);
-  return coords?['pleasantness'] ?? 4;
-}
+import 'mood_scale.dart';
 
 String buildMoodMarkdown(
   List<MoodDay> entries, {
   required String energyLabel,
   required String feelingLabel,
   required String moodLabel,
+  String noteLabel = 'Note',
 }) {
   final DateFormat dateFmt = DateFormat('yyyy-MM-dd');
   final StringBuffer buf = StringBuffer();
   for (final MoodDay e in entries) {
     final DateTime d = DateTime(e.date.year, e.date.month, e.date.day);
-    final int energy = _energyForExport(e);
-    final int feeling = _feelingForExport(e);
+    final int energy = MoodScale.toPercent(e.energy);
+    final int feeling = MoodScale.toPercent(e.pleasantness);
     buf.writeln('## ${dateFmt.format(d)}');
-    buf.writeln('**$energyLabel:** $energy/6');
-    buf.writeln('**$feelingLabel:** $feeling/6');
-    buf.writeln('**$moodLabel:** ${e.emotion}');
+    buf.writeln('**$energyLabel:** $energy/100');
+    buf.writeln('**$feelingLabel:** $feeling/100');
+    final List<String> moods = e.emotionIds;
+    if (moods.isNotEmpty) {
+      buf.writeln('**$moodLabel:** ${moods.join(', ')}');
+    }
+    final String note = e.text.trim();
+    if (note.isNotEmpty) {
+      buf.writeln('**$noteLabel:** $note');
+    }
     buf.writeln();
   }
   return buf.toString().trimRight();

@@ -105,4 +105,35 @@ class EmotionMapping {
 
     return surroundingEmotions;
   }
+
+  /// Nearest emotion chips for continuous 0–100 energy / pleasantness.
+  static List<String> getNearestEmotions({
+    required int energyPercent,
+    required int pleasantnessPercent,
+    required List<String> availableEmotionIds,
+    int limit = 8,
+  }) {
+    final double e = energyPercent.clamp(0, 100) / 100.0 * 5 + 1;
+    final double p = pleasantnessPercent.clamp(0, 100) / 100.0 * 5 + 1;
+
+    final List<({String id, double distance})> ranked =
+        <({String id, double distance})>[];
+
+    for (final MapEntry<String, Map<String, int>> entry
+        in emotionToCoordinates.entries) {
+      if (!availableEmotionIds.contains(entry.key)) {
+        continue;
+      }
+      final double de = (entry.value['energy']! - e).abs();
+      final double dp = (entry.value['pleasantness']! - p).abs();
+      ranked.add((id: entry.key, distance: de + dp));
+    }
+
+    ranked.sort(
+      (({String id, double distance}) a, ({String id, double distance}) b) =>
+          a.distance.compareTo(b.distance),
+    );
+
+    return ranked.take(limit).map((({String id, double distance}) e) => e.id).toList();
+  }
 }

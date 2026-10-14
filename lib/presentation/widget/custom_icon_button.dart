@@ -5,27 +5,32 @@ class CustomIconButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     required this.icon,
+    this.size = 44,
+    this.iconSize = 24,
   });
 
   final VoidCallback onPressed;
   final IconData icon;
+  final double size;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 30,
-      height: 30,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        shape: BoxShape.circle,
-      ),
-      child: IconButton(
-        padding: EdgeInsets.zero,
-        icon: Icon(icon),
-        onPressed: onPressed,
-        iconSize: 20,
-        color: Theme.of(context).colorScheme.onSurface,
+    return Material(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onPressed,
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: Icon(
+            icon,
+            size: iconSize,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
       ),
     );
   }

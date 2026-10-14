@@ -1,8 +1,9 @@
-import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 
 import '../shared/assets/l10n.dart';
 
+/// Compact Material [SegmentedButton] — indicator and track align reliably,
+/// unlike the previous animated_toggle_switch sizing.
 class MonthYearToggle extends StatelessWidget {
   const MonthYearToggle({
     super.key,
@@ -11,32 +12,53 @@ class MonthYearToggle extends StatelessWidget {
   });
 
   final int current;
-  final Function(int) onChanged;
+  final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.maxFinite,
-      child: AnimatedToggleSwitch<int>.size(
-        current: current,
-        values: const <int>[0, 1],
-        selectedIconScale: 1.0,
-        indicatorSize: const Size(150, 30),
-        height: 30,
-        onChanged: onChanged,
-        iconBuilder:
-            (int value) => Text(
-              value == 0 ? S.of(context).month : S.of(context).year,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-
-        styleBuilder:
-            (int value) => ToggleStyle(
-              backgroundColor:
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
-              indicatorColor: Theme.of(context).colorScheme.surfaceContainer,
-              borderColor: Colors.transparent,
-            ),
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    return SegmentedButton<int>(
+      segments: <ButtonSegment<int>>[
+        ButtonSegment<int>(
+          value: 0,
+          label: Text(S.of(context).month),
+        ),
+        ButtonSegment<int>(
+          value: 1,
+          label: Text(S.of(context).year),
+        ),
+      ],
+      selected: <int>{current},
+      onSelectionChanged: (Set<int> next) {
+        if (next.isNotEmpty) {
+          onChanged(next.first);
+        }
+      },
+      showSelectedIcon: false,
+      style: ButtonStyle(
+        visualDensity: VisualDensity.compact,
+        padding: const WidgetStatePropertyAll<EdgeInsets>(
+          EdgeInsets.symmetric(horizontal: 16),
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith<Color>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.selected)) {
+            return scheme.onSecondaryContainer;
+          }
+          return scheme.onSurfaceVariant;
+        }),
+        backgroundColor: WidgetStateProperty.resolveWith<Color>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.selected)) {
+            return scheme.secondaryContainer;
+          }
+          return Colors.transparent;
+        }),
+        side: WidgetStatePropertyAll<BorderSide>(
+          BorderSide(color: scheme.outlineVariant),
+        ),
       ),
     );
   }

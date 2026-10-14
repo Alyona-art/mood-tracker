@@ -6,10 +6,12 @@ class PreferencesState {
   const PreferencesState({
     required this.showAdvice,
     required this.showEnglishTranslations,
+    required this.allowShapeEditing,
   });
 
   final bool showAdvice;
   final bool showEnglishTranslations;
+  final bool allowShapeEditing;
 }
 
 class PreferencesCubit extends Cubit<PreferencesState> {
@@ -18,6 +20,7 @@ class PreferencesCubit extends Cubit<PreferencesState> {
         const PreferencesState(
           showAdvice: true,
           showEnglishTranslations: false,
+          allowShapeEditing: true,
         ),
       ) {
     _loadPreferences();
@@ -29,10 +32,13 @@ class PreferencesCubit extends Cubit<PreferencesState> {
     final bool showAdvice = await _settingsRepository.getShowAdvice();
     final bool showEnglishTranslations =
         await _settingsRepository.getShowEnglishTranslations();
+    final bool allowShapeEditing =
+        await _settingsRepository.getAllowShapeEditing();
     emit(
       PreferencesState(
         showAdvice: showAdvice,
         showEnglishTranslations: showEnglishTranslations,
+        allowShapeEditing: allowShapeEditing,
       ),
     );
   }
@@ -43,6 +49,7 @@ class PreferencesCubit extends Cubit<PreferencesState> {
       PreferencesState(
         showAdvice: value,
         showEnglishTranslations: state.showEnglishTranslations,
+        allowShapeEditing: state.allowShapeEditing,
       ),
     );
   }
@@ -53,6 +60,18 @@ class PreferencesCubit extends Cubit<PreferencesState> {
       PreferencesState(
         showAdvice: state.showAdvice,
         showEnglishTranslations: value,
+        allowShapeEditing: state.allowShapeEditing,
+      ),
+    );
+  }
+
+  Future<void> setAllowShapeEditing(bool value) async {
+    await _settingsRepository.setAllowShapeEditing(value);
+    emit(
+      PreferencesState(
+        showAdvice: state.showAdvice,
+        showEnglishTranslations: state.showEnglishTranslations,
+        allowShapeEditing: value,
       ),
     );
   }

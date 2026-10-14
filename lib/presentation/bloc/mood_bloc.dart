@@ -31,6 +31,10 @@ class MoodBloc extends Bloc<MoodEvent, MoodState> {
           emotion: event.emotion,
           energy: event.energy,
           pleasantness: event.pleasantness,
+          shapeRounding: event.shapeRounding,
+          shapeRayDepth: event.shapeRayDepth,
+          shapeTwist: event.shapeTwist,
+          shapeVariance: event.shapeVariance,
         );
         await repository.upsertEntryByDate(entry);
         add(LoadMoodEntries());

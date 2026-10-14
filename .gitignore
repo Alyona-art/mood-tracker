@@ -48,3 +48,6 @@ app.*.map.json
 .fvm/
 
 android/app/.cxx/
+
+# VS Code
+.vscode/

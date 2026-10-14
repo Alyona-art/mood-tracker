@@ -12,9 +12,9 @@ class DaysCubit extends Cubit<List<Day>> {
   Future<void> loadDays(int year) async {
     try {
       final List<MoodDay> entries = await _repository.getAllEntries();
-      final Map<DateTime, String> moodsByDate = <DateTime, String>{
+      final Map<DateTime, MoodDay> moodsByDate = <DateTime, MoodDay>{
         for (final MoodDay e in entries)
-          DateTime(e.date.year, e.date.month, e.date.day): e.emotion,
+          DateTime(e.date.year, e.date.month, e.date.day): e,
       };
 
       final List<Day> days = <Day>[];
@@ -25,8 +25,21 @@ class DaysCubit extends Cubit<List<Day>> {
       for (int i = 0; i < daysInYear; i++) {
         final DateTime date = startDate.add(Duration(days: i));
         final DateTime dateKey = DateTime(date.year, date.month, date.day);
-        final String? moodId = moodsByDate[dateKey];
-        days.add(Day(date: date, moodId: moodId));
+        final MoodDay? entry = moodsByDate[dateKey];
+        days.add(
+          Day(
+            date: date,
+            moodId: entry?.emotionIds.isNotEmpty == true
+                ? entry!.emotionIds.first
+                : entry?.emotion,
+            energy: entry?.energy,
+            pleasantness: entry?.pleasantness,
+            shapeRounding: entry?.shapeRounding,
+            shapeRayDepth: entry?.shapeRayDepth,
+            shapeTwist: entry?.shapeTwist,
+            shapeVariance: entry?.shapeVariance,
+          ),
+        );
       }
 
       emit(days);
