@@ -32,7 +32,7 @@ class MainApp extends StatelessWidget {
     return BlocProvider<PreferencesCubit>(
       create: (_) => PreferencesCubit(getIt<SettingsRepository>()),
       child: MaterialApp(
-        title: 'Mood Tracker',
+        title: 'Матрица настроения',
         debugShowCheckedModeBanner: false,
         localizationsDelegates: const <LocalizationsDelegate<void>>[
           AppLocalizationDelegate(),

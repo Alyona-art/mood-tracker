@@ -138,7 +138,7 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Энергия ${widget.energy}% · приятность ${widget.pleasantness}%',
+              'энергия ${widget.energy}% · приятность ${widget.pleasantness}%',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
