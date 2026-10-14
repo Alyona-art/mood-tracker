@@ -7,7 +7,6 @@ part 'mood_day.g.dart';
 @freezed
 @HiveType(typeId: 0)
 class MoodDay with _$MoodDay {
-  const MoodDay._();
 
   const factory MoodDay({
     @HiveField(0) required DateTime date,
@@ -24,7 +23,10 @@ class MoodDay with _$MoodDay {
     @HiveField(7) int? shapeRayDepth,
     @HiveField(8) int? shapeTwist,
     @HiveField(9) int? shapeVariance,
+    /// Tip locked at mark time (daytime/evening pack).
+    @HiveField(11) String? adviceSuggestion,
   }) = _MoodDay;
+  const MoodDay._();
 
   factory MoodDay.fromJson(Map<String, dynamic> json) =>
       _$MoodDayFromJson(json);

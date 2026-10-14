@@ -35,6 +35,7 @@ class MoodBloc extends Bloc<MoodEvent, MoodState> {
           shapeRayDepth: event.shapeRayDepth,
           shapeTwist: event.shapeTwist,
           shapeVariance: event.shapeVariance,
+          adviceSuggestion: event.adviceSuggestion,
         );
         await repository.upsertEntryByDate(entry);
         add(LoadMoodEntries());

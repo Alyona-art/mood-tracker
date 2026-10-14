@@ -55,6 +55,7 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
   final Set<String> _selectedEmotionIds = <String>{};
   String _note = '';
   List<List<Color>>? _gridColors;
+  String? _lockedAdvice;
   _ViewState _viewState = _ViewState.sliders;
 
   @override
@@ -117,6 +118,8 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
         ..clear()
         ..addAll(entry?.emotionIds ?? <String>[]);
       _note = entry?.text ?? '';
+      final String? tip = entry?.adviceSuggestion;
+      _lockedAdvice = (tip != null && tip.isNotEmpty) ? tip : null;
       final bool hasEntry =
           entry != null &&
           (entry.emotion.isNotEmpty ||
@@ -236,6 +239,13 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
       _currentDate.month,
       _currentDate.day,
     );
+    final DateTime markedAt = DateTime.now();
+    final String advice = MoodAdviceService.forMood(
+      energyPercent: _energy.round(),
+      pleasantnessPercent: _pleasantness.round(),
+      date: date,
+      markedAt: markedAt,
+    );
 
     context.read<MoodBloc>().add(
       AddMoodEntry(
@@ -259,10 +269,14 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
             _varianceOverride != null
                 ? (_varianceOverride! * 100).round()
                 : null,
+        adviceSuggestion: advice,
       ),
     );
 
-    setState(() => _viewState = _ViewState.saved);
+    setState(() {
+      _lockedAdvice = advice;
+      _viewState = _ViewState.saved;
+    });
   }
 
   void _clearMood() {
@@ -283,6 +297,7 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
       _slidersTouched = false;
       _selectedEmotionIds.clear();
       _note = '';
+      _lockedAdvice = null;
     });
   }
 
@@ -420,11 +435,7 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
       );
     }
 
-    final MoodAdvice advice = MoodAdviceService.forMood(
-      energyPercent: _energy.round(),
-      pleasantnessPercent: _pleasantness.round(),
-      date: _currentDate,
-    );
+    final String? advice = _lockedAdvice;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -451,7 +462,7 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
           ],
           BlocBuilder<PreferencesCubit, PreferencesState>(
             builder: (BuildContext context, PreferencesState state) {
-              if (!state.showAdvice) {
+              if (!state.showAdvice || advice == null) {
                 return const SizedBox.shrink();
               }
               return Padding(
@@ -459,7 +470,7 @@ class _MoodMeterWidgetState extends State<MoodMeterWidget> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Совет: ${advice.suggestion}',
+                    'Совет: $advice',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),

@@ -49,6 +49,10 @@ mixin _$MoodDay {
   @HiveField(9)
   int? get shapeVariance => throw _privateConstructorUsedError;
 
+  /// Tip locked at mark time (daytime/evening pack).
+  @HiveField(11)
+  String? get adviceSuggestion => throw _privateConstructorUsedError;
+
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $MoodDayCopyWith<MoodDay> get copyWith => throw _privateConstructorUsedError;
@@ -69,7 +73,8 @@ abstract class $MoodDayCopyWith<$Res> {
       @HiveField(6) int? shapeRounding,
       @HiveField(7) int? shapeRayDepth,
       @HiveField(8) int? shapeTwist,
-      @HiveField(9) int? shapeVariance});
+      @HiveField(9) int? shapeVariance,
+      @HiveField(11) String? adviceSuggestion});
 }
 
 /// @nodoc
@@ -95,6 +100,7 @@ class _$MoodDayCopyWithImpl<$Res, $Val extends MoodDay>
     Object? shapeRayDepth = freezed,
     Object? shapeTwist = freezed,
     Object? shapeVariance = freezed,
+    Object? adviceSuggestion = freezed,
   }) {
     return _then(_value.copyWith(
       date: null == date
@@ -137,6 +143,10 @@ class _$MoodDayCopyWithImpl<$Res, $Val extends MoodDay>
           ? _value.shapeVariance
           : shapeVariance // ignore: cast_nullable_to_non_nullable
               as int?,
+      adviceSuggestion: freezed == adviceSuggestion
+          ? _value.adviceSuggestion
+          : adviceSuggestion // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -158,7 +168,8 @@ abstract class _$$MoodDayImplCopyWith<$Res> implements $MoodDayCopyWith<$Res> {
       @HiveField(6) int? shapeRounding,
       @HiveField(7) int? shapeRayDepth,
       @HiveField(8) int? shapeTwist,
-      @HiveField(9) int? shapeVariance});
+      @HiveField(9) int? shapeVariance,
+      @HiveField(11) String? adviceSuggestion});
 }
 
 /// @nodoc
@@ -182,6 +193,7 @@ class __$$MoodDayImplCopyWithImpl<$Res>
     Object? shapeRayDepth = freezed,
     Object? shapeTwist = freezed,
     Object? shapeVariance = freezed,
+    Object? adviceSuggestion = freezed,
   }) {
     return _then(_$MoodDayImpl(
       date: null == date
@@ -224,6 +236,10 @@ class __$$MoodDayImplCopyWithImpl<$Res>
           ? _value.shapeVariance
           : shapeVariance // ignore: cast_nullable_to_non_nullable
               as int?,
+      adviceSuggestion: freezed == adviceSuggestion
+          ? _value.adviceSuggestion
+          : adviceSuggestion // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -241,7 +257,8 @@ class _$MoodDayImpl extends _MoodDay {
       @HiveField(6) this.shapeRounding,
       @HiveField(7) this.shapeRayDepth,
       @HiveField(8) this.shapeTwist,
-      @HiveField(9) this.shapeVariance})
+      @HiveField(9) this.shapeVariance,
+      @HiveField(11) this.adviceSuggestion})
       : super._();
 
   factory _$MoodDayImpl.fromJson(Map<String, dynamic> json) =>
@@ -286,9 +303,14 @@ class _$MoodDayImpl extends _MoodDay {
   @HiveField(9)
   final int? shapeVariance;
 
+  /// Tip locked at mark time (daytime/evening pack).
+  @override
+  @HiveField(11)
+  final String? adviceSuggestion;
+
   @override
   String toString() {
-    return 'MoodDay(date: $date, audioPath: $audioPath, text: $text, emotion: $emotion, energy: $energy, pleasantness: $pleasantness, shapeRounding: $shapeRounding, shapeRayDepth: $shapeRayDepth, shapeTwist: $shapeTwist, shapeVariance: $shapeVariance)';
+    return 'MoodDay(date: $date, audioPath: $audioPath, text: $text, emotion: $emotion, energy: $energy, pleasantness: $pleasantness, shapeRounding: $shapeRounding, shapeRayDepth: $shapeRayDepth, shapeTwist: $shapeTwist, shapeVariance: $shapeVariance, adviceSuggestion: $adviceSuggestion)';
   }
 
   @override
@@ -311,7 +333,9 @@ class _$MoodDayImpl extends _MoodDay {
             (identical(other.shapeTwist, shapeTwist) ||
                 other.shapeTwist == shapeTwist) &&
             (identical(other.shapeVariance, shapeVariance) ||
-                other.shapeVariance == shapeVariance));
+                other.shapeVariance == shapeVariance) &&
+            (identical(other.adviceSuggestion, adviceSuggestion) ||
+                other.adviceSuggestion == adviceSuggestion));
   }
 
   @JsonKey(ignore: true)
@@ -327,7 +351,8 @@ class _$MoodDayImpl extends _MoodDay {
       shapeRounding,
       shapeRayDepth,
       shapeTwist,
-      shapeVariance);
+      shapeVariance,
+      adviceSuggestion);
 
   @JsonKey(ignore: true)
   @override
@@ -354,7 +379,8 @@ abstract class _MoodDay extends MoodDay {
       @HiveField(6) final int? shapeRounding,
       @HiveField(7) final int? shapeRayDepth,
       @HiveField(8) final int? shapeTwist,
-      @HiveField(9) final int? shapeVariance}) = _$MoodDayImpl;
+      @HiveField(9) final int? shapeVariance,
+      @HiveField(11) final String? adviceSuggestion}) = _$MoodDayImpl;
   const _MoodDay._() : super._();
 
   factory _MoodDay.fromJson(Map<String, dynamic> json) = _$MoodDayImpl.fromJson;
@@ -397,6 +423,11 @@ abstract class _MoodDay extends MoodDay {
   @override
   @HiveField(9)
   int? get shapeVariance;
+  @override
+
+  /// Tip locked at mark time (daytime/evening pack).
+  @HiveField(11)
+  String? get adviceSuggestion;
   @override
   @JsonKey(ignore: true)
   _$$MoodDayImplCopyWith<_$MoodDayImpl> get copyWith =>

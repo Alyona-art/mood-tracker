@@ -27,13 +27,14 @@ class MoodDayAdapter extends TypeAdapter<MoodDay> {
       shapeRayDepth: fields[7] as int?,
       shapeTwist: fields[8] as int?,
       shapeVariance: fields[9] as int?,
+      adviceSuggestion: fields[11] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MoodDay obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class MoodDayAdapter extends TypeAdapter<MoodDay> {
       ..writeByte(8)
       ..write(obj.shapeTwist)
       ..writeByte(9)
-      ..write(obj.shapeVariance);
+      ..write(obj.shapeVariance)
+      ..writeByte(11)
+      ..write(obj.adviceSuggestion);
   }
 
   @override
@@ -83,6 +86,7 @@ _$MoodDayImpl _$$MoodDayImplFromJson(Map<String, dynamic> json) =>
       shapeRayDepth: (json['shapeRayDepth'] as num?)?.toInt(),
       shapeTwist: (json['shapeTwist'] as num?)?.toInt(),
       shapeVariance: (json['shapeVariance'] as num?)?.toInt(),
+      adviceSuggestion: json['adviceSuggestion'] as String?,
     );
 
 Map<String, dynamic> _$$MoodDayImplToJson(_$MoodDayImpl instance) =>
@@ -97,4 +101,5 @@ Map<String, dynamic> _$$MoodDayImplToJson(_$MoodDayImpl instance) =>
       'shapeRayDepth': instance.shapeRayDepth,
       'shapeTwist': instance.shapeTwist,
       'shapeVariance': instance.shapeVariance,
+      'adviceSuggestion': instance.adviceSuggestion,
     };

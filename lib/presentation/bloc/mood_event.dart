@@ -21,6 +21,7 @@ class AddMoodEntry extends MoodEvent {
     this.shapeRayDepth,
     this.shapeTwist,
     this.shapeVariance,
+    this.adviceSuggestion,
   });
   final DateTime date;
   final String audioPath;
@@ -32,6 +33,7 @@ class AddMoodEntry extends MoodEvent {
   final int? shapeRayDepth;
   final int? shapeTwist;
   final int? shapeVariance;
+  final String? adviceSuggestion;
 
   @override
   List<Object?> get props => <Object?>[
@@ -45,6 +47,7 @@ class AddMoodEntry extends MoodEvent {
     shapeRayDepth,
     shapeTwist,
     shapeVariance,
+    adviceSuggestion,
   ];
 }
 
