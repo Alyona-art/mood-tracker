@@ -1,7 +1,7 @@
 name: mood_tracker
 description: "App to track mood with an emotion matrix (energy and pleasantness)."
 publish_to: 'none'
-version: 0.1.0
+version: 0.1.0+1
 
 environment:
   sdk: ^3.7.2
@@ -48,6 +48,7 @@ flutter:
   
   assets:
     - assets/images/
+    - shorebird.yaml
 
 flutter_intl:
   enabled: true
